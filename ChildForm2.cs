@@ -1,3 +1,5 @@
+using System.IO;
+using System.Net;
 using System.Net.Sockets;
 using System.Text;
 
@@ -5,6 +7,7 @@ public partial class ChildForm2 : Form
 {
     private Socket socket;
     private const int port = 1112;
+    private const int timeout = 30000;
 
     public ChildForm2()
     {
@@ -17,8 +20,12 @@ public partial class ChildForm2 : Form
     {
         try
         {
+            string ip = Microsoft.VisualBasic.Interaction.InputBox("Enter IP address of server:", "Connect to Server", "10.0.0.1");
+            IPAddress ipAddress = IPAddress.Parse(ip);
+            IPEndPoint remoteEP = new IPEndPoint(ipAddress, port);
             socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-            socket.Connect("10.0.0.1", port);
+            socket.ReceiveTimeout = timeout;
+            socket.Connect(remoteEP);
             MessageBox.Show("Connected to server.");
         }
         catch (Exception ex)
@@ -49,7 +56,8 @@ public partial class ChildForm2 : Form
             byte[] buffer = new byte[1024];
             int bytesRead = socket.Receive(buffer);
             string message = Encoding.UTF8.GetString(buffer, 0, bytesRead);
-            MessageBox.Show("Message received: " + message);
+            File.WriteAllText("output.txt", message);
+            MessageBox.Show("Message received and saved to file.");
         }
         catch (Exception ex)
         {
