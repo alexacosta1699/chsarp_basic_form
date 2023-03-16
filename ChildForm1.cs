@@ -9,22 +9,25 @@ public partial class ChildForm1 : Form
         StartPosition = FormStartPosition.CenterParent;
     }
 
-    private void SendEmailButton_Click(object sender, EventArgs e)
+    private void SendEmail(string recipient, string subject, string body)
     {
-        string fromAddress = "yourEmailAddress@example.com";
-        string toAddress = "recipientEmailAddress@example.com";
-        string subject = "Test email";
-        string body = "This is a test email.";
-
-        SmtpClient smtpClient = new SmtpClient("smtp.example.com", 587);
-        smtpClient.Credentials = new NetworkCredential("yourEmailAddress@example.com", "yourEmailPassword");
-
-        MailMessage message = new MailMessage(fromAddress, toAddress, subject, body);
-
         try
         {
-            smtpClient.Send(message);
-            MessageBox.Show("Email sent successfully.");
+            using (MailMessage mail = new MailMessage())
+            {
+                mail.From = new MailAddress("your_email_address@example.com");
+                mail.To.Add(recipient);
+                mail.Subject = subject;
+                mail.Body = body;
+
+                using (SmtpClient smtp = new SmtpClient("smtp.gmail.com", 587))
+                {
+                    smtp.Credentials = new NetworkCredential("your_email_address@example.com", "your_email_password");
+                    smtp.EnableSsl = true;
+                    smtp.Send(mail);
+                }
+            }
+            MessageBox.Show("Email sent successfully!");
         }
         catch (Exception ex)
         {
@@ -32,3 +35,5 @@ public partial class ChildForm1 : Form
         }
     }
 }
+
+
